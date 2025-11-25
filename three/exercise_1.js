@@ -1,24 +1,28 @@
+// three/exercise_1.js
 
+// 🚩 RUTA Three.js: Subir un nivel (../) para encontrar node_modules
 import * as THREE from '../node_modules/three/build/three.module.js';
 
-// 1. Define la función matemática (f(x) = x^2)
-const f = (x) => x * x;
+// --- Parámetros del Ejercicio 1 ---
+const a = 0;
+const b = 2;
+const segments = 50;
+const f = (x) => x * x; // Función: f(x) = x^2
+// ------------------------------------
 
-export function createSurfaceOfRevolution(a = 0, b = 2, segments = 50) {
+export function createSurfaceOfRevolution() {
     const profilePoints = [];
     
     // Generar los puntos 2D (Vector2) para el perfil de la curva
     for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        const x = a + (b - a) * t;
+        const x = a + (b - a) * (i / segments);
         const y = f(x); 
         
-        // LatheGeometry rota alrededor de Y. Vector2 es (radio, altura)
-        // El radio es x, la altura es y=f(x)
+        // LatheGeometry usa (radio, altura) que en este caso es (x, f(x))
         profilePoints.push(new THREE.Vector2(x, y));
     }
 
-    // 2. Crear la geometría de torno
+    // Crear la geometría de torno (LatheGeometry)
     const geometry = new THREE.LatheGeometry(
         profilePoints,
         32, // segmentos radiales
@@ -26,12 +30,12 @@ export function createSurfaceOfRevolution(a = 0, b = 2, segments = 50) {
         Math.PI * 2
     );
 
-    // 3. Crear el material y la malla (Mesh)
+    // Crear el material y la malla (Mesh)
     const material = new THREE.MeshPhongMaterial({
-        color: 0x48A0FF, 
+        color: 0x48A0FF, // Color azul
         side: THREE.DoubleSide,
         shininess: 50,
-        wireframe: false // Puedes cambiar a true para ver la estructura de malla
+        wireframe: false
     });
 
     const mesh = new THREE.Mesh(geometry, material);

@@ -1,54 +1,81 @@
-// main.js - CÓDIGO DE DIAGNÓSTICO DEL CUBO
+// main.js
 
-// 1. IMPORTACIONES: Asegúrate de que las rutas sean correctas para tu estructura (Raíz)
+// 🚩 RUTA Three.js: Importación desde la carpeta raíz (usa './')
 import * as THREE from './node_modules/three/build/three.module.js'; 
 import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js'; 
 
-// NO IMPORTAMOS EL EJERCICIO 1 POR AHORA
+// Importa todos los modelos de los ejercicios
+import { createSurfaceOfRevolution } from './three/exercise_1.js';
+import { createTripleIntegralVisualization, calculateVolume, f, X_MIN, X_MAX, Y_MIN, Y_MAX } from './three/exercise_2.js';
+import { createVectorFieldVisualization, createParticleTrajectory, calculateLineIntegral, F } from './three/exercise_3.js';
+
 
 // --- Configuración de la Escena ---
 const scene = new THREE.Scene();
-
-// La cámara ve con un ángulo de 75 grados
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-// El renderizador dibuja la escena en 3D
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
-
-// Añadimos el área de dibujo (canvas) al HTML
 document.body.appendChild(renderer.domElement);
+renderer.setClearColor(0xEEEEEE); // Fondo gris claro
 
-// --- 📦 DIAGNÓSTICO: CREAR CUBO ROJO ---
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-// Usamos MeshBasicMaterial para que no necesite luces
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube); // Añadimos el cubo a la escena
+// --- Luces ---
+scene.add(new THREE.AmbientLight(0x404040, 5));
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+directionalLight.position.set(5, 10, 7.5);
+scene.add(directionalLight);
 
-// --- Posición Inicial de la Cámara ---
-// La movemos para que el cubo (que está en 0,0,0) sea visible
-camera.position.set(2, 2, 3);
 
-// --- Controles de Órbita ---
+// --- 📦 IMPLEMENTACIÓN DE MODELOS (Solo uno debe estar activo a la vez) ---
+
+// 1. EJERCICIO 1: Superficie de Revolución (Comentar/Descomentar)
+/*
+const surfaceMesh = createSurfaceOfRevolution();
+scene.add(surfaceMesh);
+camera.position.set(8, 4, 8); 
+*/
+
+// 2. EJERCICIO 2: Integral Doble (Comentar/Descomentar)
+/*
+const volumeMesh = createTripleIntegralVisualization();
+scene.add(volumeMesh);
+camera.position.set(5, 10, 5);
+const volumeValue = calculateVolume(f, X_MIN, X_MAX, Y_MIN, Y_MAX);
+console.log(`Volumen Calculado (Ej 2): ${volumeValue.toFixed(4)}`);
+*/
+
+// 3. EJERCICIO 3: Campo Vectorial (ACTIVO POR DEFECTO)
+const vectorField = createVectorFieldVisualization();
+scene.add(vectorField);
+
+const startPoint = new THREE.Vector3(1, 1, 1);
+const trajectoryLine = createParticleTrajectory(startPoint, 300, 0.05, 0xFF00FF);
+scene.add(trajectoryLine);
+
+const points = trajectoryLine.geometry.attributes.position.array;
+const vectorPoints = [];
+for (let i = 0; i < points.length; i += 3) {
+    vectorPoints.push(new THREE.Vector3(points[i], points[i+1], points[i+2]));
+}
+const lineIntegral = calculateLineIntegral(vectorPoints, F);
+console.log(`Integral de Línea (Ej 3): ${lineIntegral.toFixed(4)}`);
+camera.position.set(10, 10, 10);
+
+
+// --- Controles y Animación ---
+
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; 
 
-// --- Bucle de Animación (Render Loop) ---
 function animate() {
     requestAnimationFrame(animate);
-    
-    // Para ver el cubo rotar incluso si no usas el mouse
-    cube.rotation.x += 0.005;
-    cube.rotation.y += 0.01;
-    
     controls.update(); 
     renderer.render(scene, camera);
 }
 
 animate();
 
-// --- Adaptar a la Ventana (Mantener) ---
+// --- Adaptar a la ventana ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
