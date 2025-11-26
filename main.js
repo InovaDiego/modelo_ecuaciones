@@ -1,14 +1,13 @@
 // main.js
 
 // 🚩 RUTA Three.js: Importación desde la carpeta raíz (usa './')
-import * as THREE from './node_modules/three/build/three.module.js'; 
-import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js'; 
-
+import * as THREE from '/node_modules/three/build/three.module.js'; 
+import { OrbitControls } from '/node_modules/three/examples/jsm/controls/OrbitControls.js';
 // Importa todos los modelos de los ejercicios
 import { createSurfaceOfRevolution } from './three/exercise_1.js';
 import { createTripleIntegralVisualization, calculateVolume, f, X_MIN, X_MAX, Y_MIN, Y_MAX } from './three/exercise_2.js';
 import { createVectorFieldVisualization, createParticleTrajectory, calculateLineIntegral, F } from './three/exercise_3.js';
-
+import { createSurfaceOfRevolution, calculateSurfaceArea, f, fPrime, a, b } from './three/exercise_1.js';
 
 // --- Configuración de la Escena ---
 const scene = new THREE.Scene();

@@ -4,11 +4,14 @@
 import * as THREE from '../node_modules/three/build/three.module.js';
 
 // --- Parámetros del Ejercicio 1 ---
-const a = 0;
-const b = 2;
+export const a = 0;
+export const b = 2;
 const segments = 50;
-const f = (x) => x * x; // Función: f(x) = x^2
+export const f = (x) => x * x; // Función: f(x) = x^2
+export const fPrime = (x) => 2 * x; // Derivada: f'(x) = 2x
 // ------------------------------------
+
+// --- 1. Visualización (LatheGeometry) ---
 
 export function createSurfaceOfRevolution() {
     const profilePoints = [];
@@ -17,22 +20,18 @@ export function createSurfaceOfRevolution() {
     for (let i = 0; i <= segments; i++) {
         const x = a + (b - a) * (i / segments);
         const y = f(x); 
-        
-        // LatheGeometry usa (radio, altura) que en este caso es (x, f(x))
         profilePoints.push(new THREE.Vector2(x, y));
     }
 
-    // Crear la geometría de torno (LatheGeometry)
     const geometry = new THREE.LatheGeometry(
         profilePoints,
-        32, // segmentos radiales
+        32,
         0,
         Math.PI * 2
     );
 
-    // Crear el material y la malla (Mesh)
     const material = new THREE.MeshPhongMaterial({
-        color: 0x48A0FF, // Color azul
+        color: 0x48A0FF,
         side: THREE.DoubleSide,
         shininess: 50,
         wireframe: false
@@ -42,4 +41,36 @@ export function createSurfaceOfRevolution() {
     mesh.name = 'Ejercicio1_Superficie';
     
     return mesh;
+}
+
+
+// --- 2. Cálculo Numérico (Área Superficial) ---
+
+/**
+ * Calcula el área superficial de revolución (S) usando la Regla del Trapecio.
+ * S = 2π * integral(f(x) * sqrt(1 + f'(x)^2)) dx
+ */
+export function calculateSurfaceArea(f, fPrime, a, b, N = 1000) {
+    const h = (b - a) / N; // Ancho de cada subintervalo
+    let sum = 0;
+
+    // Función a integrar: g(x) = f(x) * sqrt(1 + f'(x)^2)
+    const g = (x) => {
+        const fp = fPrime(x);
+        return f(x) * Math.sqrt(1 + fp * fp);
+    };
+
+    // Aplicar la Regla del Trapecio compuesta
+    for (let i = 1; i < N; i++) {
+        const x = a + i * h;
+        sum += g(x);
+    }
+
+    // Fórmula del Trapecio: h/2 * [g(a) + 2*sum(g(xi)) + g(b)]
+    const integralValue = (h / 2) * (g(a) + 2 * sum + g(b));
+
+    // Multiplicar por 2π
+    const surfaceArea = 2 * Math.PI * integralValue;
+    
+    return surfaceArea;
 }
